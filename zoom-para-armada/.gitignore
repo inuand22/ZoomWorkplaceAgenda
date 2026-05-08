@@ -1,0 +1,4 @@
+node_modules/
+agenda_zoom.db
+.DS_Store
+*.log

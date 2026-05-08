@@ -4,81 +4,125 @@
   <meta charset="UTF-8">
   <title>Calendario de Disponibilidad Zoom</title>
 
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700&display=swap" rel="stylesheet">
+
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f4f4f4;
-      margin: 0;
-      padding: 20px;
+    :root {
+      --primary: #0B5CFF;
+      --secondary: #232333;
+      --bg: #F8FAFC;
+      --card-bg: #FFFFFF;
+      --text: #1E293B;
+      --text-light: #64748B;
+      --border: #E2E8F0;
+      --success: #10B981;
+      --warning: #F59E0B;
+      --danger: #EF4444;
+      --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
     }
 
-    h1 {
-      text-align: center;
-      color: #222;
+    * {
+      box-sizing: border-box;
+      transition: all 0.2s ease;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 40px 20px;
     }
 
     .contenedor {
       max-width: 1100px;
       margin: auto;
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.15);
+      background: var(--card-bg);
+      padding: 40px;
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+    }
+
+    h1 {
+      font-family: 'Outfit', sans-serif;
+      text-align: center;
+      color: var(--secondary);
+      font-size: 2.25rem;
+      margin-bottom: 2rem;
+      font-weight: 700;
     }
 
     .controles {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 20px;
+      margin-bottom: 32px;
+      background: #F1F5F9;
+      padding: 12px 24px;
+      border-radius: 16px;
     }
 
     button {
-      padding: 10px 15px;
+      padding: 10px 20px;
       border: none;
-      background: #333;
+      background: var(--secondary);
       color: white;
-      border-radius: 5px;
+      border-radius: 10px;
       cursor: pointer;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
     button:hover {
-      background: #555;
+      background: #334155;
+      transform: translateY(-1px);
     }
 
     #mesAnio {
-      font-size: 22px;
-      font-weight: bold;
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--secondary);
     }
 
     .calendario {
       display: grid;
       grid-template-columns: repeat(7, 1fr);
-      gap: 8px;
+      gap: 12px;
     }
 
     .dia-semana {
       text-align: center;
-      font-weight: bold;
-      padding: 10px;
-      background: #222;
-      color: white;
-      border-radius: 5px;
+      font-weight: 600;
+      padding: 12px;
+      color: var(--text-light);
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
     }
 
     .dia {
-      min-height: 90px;
-      padding: 8px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
+      min-height: 100px;
+      padding: 12px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
       display: flex;
-      align-items: flex-start;
-      justify-content: flex-start;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+      overflow: hidden;
     }
 
     .numero {
-      font-weight: bold;
-      font-size: 18px;
+      font-weight: 700;
+      font-size: 1.25rem;
+      z-index: 2;
     }
 
     .vacio {
@@ -87,41 +131,54 @@
     }
 
     .bloqueado {
-      background: #ddd;
-      color: #777;
+      background: #F1F5F9;
+      color: #CBD5E1;
+      border-style: dashed;
     }
 
     .verde {
-      background: #b9f6b9;
+      background: #ECFDF5;
+      color: #065F46;
+      border-color: #A7F3D0;
     }
 
     .amarillo {
-      background: #fff3a3;
+      background: #FFFBEB;
+      color: #92400E;
+      border-color: #FDE68A;
     }
 
     .rojo {
-      background: #ff9f9f;
+      background: #FEF2F2;
+      color: #991B1B;
+      border-color: #FECACA;
     }
 
     .leyenda {
-      margin-top: 20px;
+      margin-top: 40px;
       display: flex;
-      gap: 15px;
+      gap: 24px;
       flex-wrap: wrap;
       justify-content: center;
+      background: #F8FAFC;
+      padding: 20px;
+      border-radius: 16px;
     }
 
     .item-leyenda {
       display: flex;
       align-items: center;
-      gap: 5px;
+      gap: 8px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--text-light);
     }
 
     .color {
-      width: 20px;
-      height: 20px;
+      width: 16px;
+      height: 16px;
       border-radius: 4px;
-      border: 1px solid #aaa;
+      border: 1px solid rgba(0,0,0,0.1);
     }
   </style>
 </head>
@@ -129,38 +186,42 @@
 <body>
 
   <div class="contenedor">
-    <h1>Calendario de Disponibilidad</h1>
+    <h1>Disponibilidad de Licencias</h1>
 
     <div class="controles">
-      <button onclick="mesAnterior()">Anterior</button>
+      <button onclick="mesAnterior()">
+        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="15 19l-7-7 7-7"/></svg>
+        Anterior
+      </button>
       <div id="mesAnio"></div>
-      <button onclick="mesSiguiente()">Siguiente</button>
+      <button onclick="mesSiguiente()">
+        Siguiente
+        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="9 5l7 7-7 7"/></svg>
+      </button>
     </div>
 
     <div class="calendario" id="calendario"></div>
 
     <div class="leyenda">
       <div class="item-leyenda">
-        <div class="color verde"></div>
-        <span>3 licencias disponibles</span>
+        <div class="color" style="background:#ECFDF5; border-color:#A7F3D0;"></div>
+        <span>3 Disponibles</span>
       </div>
-
       <div class="item-leyenda">
-        <div class="color amarillo"></div>
-        <span>1 o 2 licencias disponibles</span>
+        <div class="color" style="background:#FFFBEB; border-color:#FDE68A;"></div>
+        <span>1 o 2 Disponibles</span>
       </div>
-
       <div class="item-leyenda">
-        <div class="color rojo"></div>
-        <span>0 licencias disponibles</span>
+        <div class="color" style="background:#FEF2F2; border-color:#FECACA;"></div>
+        <span>Sin Cupo</span>
       </div>
-
       <div class="item-leyenda">
-        <div class="color" style="background:#ddd;"></div>
+        <div class="color" style="background:#F1F5F9; border-color:#CBD5E1; border-style:dashed;"></div>
         <span>No habilitado</span>
       </div>
     </div>
   </div>
+
 
   <script>
     var fechaActual = new Date();

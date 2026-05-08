@@ -4,85 +4,144 @@
   <meta charset="UTF-8">
   <title>Agenda de Licencias Zoom</title>
 
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
+
   <style>
+    :root {
+      --primary: #0B5CFF;
+      --primary-dark: #0046CC;
+      --secondary: #232333;
+      --bg: #F8FAFC;
+      --card-bg: #FFFFFF;
+      --text: #1E293B;
+      --text-light: #64748B;
+      --border: #E2E8F0;
+      --success: #10B981;
+      --success-bg: #ECFDF5;
+      --warning: #F59E0B;
+      --warning-bg: #FFFBEB;
+      --danger: #EF4444;
+      --danger-bg: #FEF2F2;
+      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+
+    * {
+      box-sizing: border-box;
+      transition: all 0.2s ease;
+    }
+
     body {
-      font-family: Arial, sans-serif;
-      background: #f4f4f4;
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
       margin: 0;
-      padding: 20px;
+      padding: 40px 20px;
+      line-height: 1.5;
     }
 
     h1 {
+      font-family: 'Outfit', sans-serif;
       text-align: center;
-      color: #222;
+      color: var(--secondary);
+      font-weight: 700;
+      font-size: 2.5rem;
+      margin-bottom: 2rem;
+      letter-spacing: -0.025em;
     }
 
     .contenedor {
-      max-width: 1200px;
+      max-width: 1280px;
       margin: auto;
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.15);
+      background: var(--card-bg);
+      padding: 32px;
+      border-radius: 20px;
+      box-shadow: var(--shadow-lg);
+      border: 1px solid var(--border);
     }
 
     .controles {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 20px;
+      margin-bottom: 32px;
+      background: #F1F5F9;
+      padding: 12px 20px;
+      border-radius: 12px;
     }
 
     button {
-      padding: 10px 15px;
+      padding: 10px 20px;
       border: none;
-      background: #333;
+      background: var(--primary);
       color: white;
-      border-radius: 5px;
+      border-radius: 8px;
       cursor: pointer;
+      font-weight: 600;
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
     button:hover {
-      background: #555;
+      background: var(--primary-dark);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(11, 92, 255, 0.25);
+    }
+
+    button:active {
+      transform: translateY(0);
     }
 
     #mesAnio {
-      font-size: 22px;
-      font-weight: bold;
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--secondary);
     }
 
     .calendario {
       display: grid;
       grid-template-columns: repeat(7, 1fr);
-      gap: 8px;
+      gap: 12px;
     }
 
     .dia-semana {
       text-align: center;
-      font-weight: bold;
-      padding: 10px;
-      background: #222;
-      color: white;
-      border-radius: 5px;
+      font-weight: 600;
+      padding: 12px;
+      color: var(--text-light);
+      font-size: 0.875rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
     }
 
     .dia {
-      min-height: 170px;
-      padding: 8px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
+      min-height: 180px;
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
       cursor: pointer;
-      background: #f9f9f9;
+      background: var(--card-bg);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
     }
 
-    .dia:hover {
-      outline: 2px solid #333;
+    .dia:hover:not(.bloqueado):not(.vacio) {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 1px var(--primary);
+      background: #FAFBFF;
     }
 
     .numero {
-      font-weight: bold;
-      font-size: 18px;
-      margin-bottom: 8px;
+      font-weight: 700;
+      font-size: 1.125rem;
+      color: var(--text-light);
+      margin-bottom: 4px;
     }
 
     .vacio {
@@ -92,143 +151,204 @@
     }
 
     .bloqueado {
-      background: #ddd;
-      color: #777;
+      background: #F8FAFC;
+      color: #CBD5E1;
       cursor: not-allowed;
-    }
-
-    .bloqueado:hover {
-      outline: none;
+      border-style: dashed;
     }
 
     .texto-bloqueado {
-      font-size: 13px;
-      margin-top: 10px;
-      font-weight: bold;
+      font-size: 0.75rem;
+      font-weight: 500;
+      text-align: center;
+      margin-top: auto;
+      color: #94A3B8;
     }
 
     .horario {
-      padding: 5px;
-      margin-top: 5px;
-      border-radius: 5px;
-      font-size: 12px;
-      border: 1px solid rgba(0,0,0,0.15);
+      padding: 8px 10px;
+      border-radius: 8px;
+      font-size: 0.75rem;
+      border: 1px solid transparent;
+      line-height: 1.4;
+      font-weight: 500;
+    }
+
+    .horario strong {
+      display: block;
+      font-size: 0.85rem;
+      margin-bottom: 2px;
     }
 
     .verde {
-      background: #b9f6b9;
+      background: var(--success-bg);
+      color: #065F46;
+      border-color: #A7F3D0;
     }
 
     .amarillo {
-      background: #fff3a3;
+      background: var(--warning-bg);
+      color: #92400E;
+      border-color: #FDE68A;
     }
 
     .rojo {
-      background: #ff9f9f;
+      background: var(--danger-bg);
+      color: #991B1B;
+      border-color: #FECACA;
     }
 
     .leyenda {
-      margin-top: 20px;
+      margin-top: 40px;
       display: flex;
-      gap: 15px;
+      gap: 24px;
       flex-wrap: wrap;
       justify-content: center;
+      background: #F8FAFC;
+      padding: 20px;
+      border-radius: 16px;
     }
 
     .item-leyenda {
       display: flex;
       align-items: center;
-      gap: 5px;
+      gap: 8px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text-light);
     }
 
     .color {
-      width: 20px;
-      height: 20px;
+      width: 16px;
+      height: 16px;
       border-radius: 4px;
-      border: 1px solid #aaa;
     }
 
+    /* Modal Styling */
     .modal {
       display: none;
       position: fixed;
-      z-index: 10;
+      z-index: 100;
       left: 0;
       top: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0,0,0,0.5);
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(4px);
     }
 
     .modal-contenido {
       background: white;
-      width: 90%;
-      max-width: 520px;
-      margin: 30px auto;
-      padding: 20px;
-      border-radius: 10px;
+      width: 95%;
+      max-width: 560px;
+      margin: 60px auto;
+      padding: 32px;
+      border-radius: 24px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+      position: relative;
+      animation: modalSlide 0.3s ease-out;
+    }
+
+    @keyframes modalSlide {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    #tituloModal {
+      font-family: 'Outfit', sans-serif;
+      margin-top: 0;
+      color: var(--secondary);
+      font-size: 1.75rem;
+      margin-bottom: 1.5rem;
     }
 
     label {
       display: block;
-      margin-top: 10px;
-      font-weight: bold;
+      margin-top: 16px;
+      font-weight: 600;
+      font-size: 0.875rem;
+      color: var(--text);
     }
 
     input, textarea {
       width: 100%;
-      padding: 8px;
-      margin-top: 5px;
+      padding: 12px 16px;
+      margin-top: 6px;
       box-sizing: border-box;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 0.95rem;
     }
 
-    textarea {
-      height: 70px;
+    input:focus, textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(11, 92, 255, 0.1);
     }
 
     .fila-horarios {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 10px;
+      gap: 16px;
     }
 
     .acciones-modal {
-      margin-top: 20px;
+      margin-top: 32px;
       display: flex;
-      justify-content: space-between;
-      gap: 10px;
-      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 12px;
     }
 
     .btn-rojo {
-      background: #8b0000;
+      background: var(--danger);
+    }
+    .btn-rojo:hover {
+      background: #DC2626;
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
     }
 
     .btn-verde {
-      background: #006400;
+      background: var(--success);
+    }
+    .btn-verde:hover {
+      background: #059669;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+    }
+
+    .btn-ghost {
+      background: #F1F5F9;
+      color: var(--text);
+    }
+    .btn-ghost:hover {
+      background: #E2E8F0;
+      box-shadow: none;
     }
 
     .nota {
-      font-size: 13px;
-      background: #eef3ff;
-      padding: 8px;
-      border-radius: 5px;
-      margin-top: 10px;
+      font-size: 0.85rem;
+      background: #EFF6FF;
+      padding: 12px 16px;
+      border-radius: 12px;
+      color: #1E40AF;
+      border-left: 4px solid var(--primary);
     }
 
     .mensaje-error {
       display: none;
-      margin-top: 12px;
-      padding: 10px;
-      border-radius: 5px;
-      background: #ffd6d6;
-      color: #8b0000;
-      font-weight: bold;
-      font-size: 14px;
+      margin-top: 16px;
+      padding: 12px;
+      border-radius: 10px;
+      background: var(--danger-bg);
+      color: var(--danger);
+      font-weight: 600;
+      font-size: 0.875rem;
+      border: 1px solid #FECACA;
     }
 
     .campo-error {
-      border: 2px solid #b00000;
-      background: #fff5f5;
+      border-color: var(--danger);
+      background: #FFF5F5;
     }
   </style>
 </head>
@@ -236,35 +356,38 @@
 <body>
 
   <div class="contenedor">
-    <h1>Agenda de Licencias Zoom Workplace Commercial</h1>
+    <h1>Agenda Zoom Workplace</h1>
 
     <div class="controles">
-      <button onclick="mesAnterior()">Anterior</button>
+      <button onclick="mesAnterior()">
+        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="15 19l-7-7 7-7"/></svg>
+        Anterior
+      </button>
       <div id="mesAnio"></div>
-      <button onclick="mesSiguiente()">Siguiente</button>
+      <button onclick="mesSiguiente()">
+        Siguiente
+        <svg width="20" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="9 5l7 7-7 7"/></svg>
+      </button>
     </div>
 
     <div class="calendario" id="calendario"></div>
 
     <div class="leyenda">
       <div class="item-leyenda">
-        <div class="color verde"></div>
-        <span>0 o 1 licencia solicitada - Disponible</span>
+        <div class="color" style="background:var(--success-bg); border:1px solid #A7F3D0;"></div>
+        <span>Disponible (0-1)</span>
       </div>
-
       <div class="item-leyenda">
-        <div class="color amarillo"></div>
-        <span>2 licencias solicitadas - Disponibilidad limitada</span>
+        <div class="color" style="background:var(--warning-bg); border:1px solid #FDE68A;"></div>
+        <span>Limitado (2)</span>
       </div>
-
       <div class="item-leyenda">
-        <div class="color rojo"></div>
-        <span>3 licencias solicitadas - Sin disponibilidad</span>
+        <div class="color" style="background:var(--danger-bg); border:1px solid #FECACA;"></div>
+        <span>Sin cupo (3)</span>
       </div>
-
       <div class="item-leyenda">
-        <div class="color" style="background:#ddd;"></div>
-        <span>Sábado/Domingo - No habilitado</span>
+        <div class="color" style="background:#F1F5F9; border:1px dashed #CBD5E1;"></div>
+        <span>No habilitado</span>
       </div>
     </div>
   </div>
@@ -277,46 +400,51 @@
       <input type="hidden" id="reservaId">
 
       <div class="nota">
-        Cada solicitud utiliza <strong>1 licencia</strong>.  
-        El horario permitido es desde las <strong>08:00</strong> hasta las <strong>14:00</strong>.
+        Cada solicitud utiliza <strong>1 licencia</strong>. Horario: <strong>08:00 - 14:00</strong>.
       </div>
 
       <div id="mensajeError" class="mensaje-error"></div>
 
       <div class="fila-horarios">
         <div>
-          <label>Hora de inicio</label>
+          <label>Inicio</label>
           <input type="time" id="horaInicio" min="08:00" max="13:59">
         </div>
 
         <div>
-          <label>Hora de fin</label>
+          <label>Fin</label>
           <input type="time" id="horaFin" min="08:01" max="14:00">
         </div>
       </div>
 
       <label>Motivo de uso</label>
-      <input type="text" id="motivo">
+      <input type="text" id="motivo" placeholder="Ej: Reunión de coordinación">
 
       <label>Responsable</label>
-      <input type="text" id="responsable">
+      <input type="text" id="responsable" placeholder="Nombre completo">
 
-      <label>Unidad</label>
-      <input type="text" id="unidad">
-
-      <label>Gran Mando</label>
-      <input type="text" id="granMando">
+      <div class="fila-horarios">
+        <div>
+          <label>Unidad</label>
+          <input type="text" id="unidad" placeholder="Ej: RRHH">
+        </div>
+        <div>
+          <label>Gran Mando</label>
+          <input type="text" id="granMando">
+        </div>
+      </div>
 
       <label>Observaciones</label>
-      <textarea id="observaciones"></textarea>
+      <textarea id="observaciones" placeholder="Detalles adicionales..."></textarea>
 
       <div class="acciones-modal">
-        <button class="btn-verde" onclick="guardarReserva()">Guardar</button>
-        <button class="btn-rojo" onclick="eliminarReserva()">Eliminar</button>
-        <button onclick="cerrarModal()">Cerrar</button>
+        <button class="btn-ghost" onclick="cerrarModal()">Cancelar</button>
+        <button class="btn-rojo" id="btnEliminar" onclick="eliminarReserva()">Eliminar</button>
+        <button class="btn-verde" onclick="guardarReserva()">Guardar Solicitud</button>
       </div>
     </div>
   </div>
+
 
   <script>
     var fechaActual = new Date();

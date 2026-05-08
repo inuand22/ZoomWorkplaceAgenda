@@ -1,7 +1,7 @@
 {
-  "name": "agenda-zoom",
+  "name": "agenda-zoom-armada",
   "version": "1.0.0",
-  "description": "Agenda para licencias Zoom Workplace Commercial",
+  "description": "Agenda de licencias Zoom Workplace Commercial",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"

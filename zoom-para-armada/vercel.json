@@ -16,16 +16,16 @@
       "dest": "/public/index.html"
     },
     {
+      "src": "/index.html",
+      "dest": "/public/index.html"
+    },
+    {
       "src": "/calendario",
       "dest": "/public/calendario.html"
     },
     {
       "src": "/calendario.html",
       "dest": "/public/calendario.html"
-    },
-    {
-      "src": "/index.html",
-      "dest": "/public/index.html"
     },
     {
       "src": "/api/(.*)",

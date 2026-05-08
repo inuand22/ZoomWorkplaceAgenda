@@ -142,17 +142,17 @@
     <div class="leyenda">
       <div class="item-leyenda">
         <div class="color verde"></div>
-        <span>Disponible</span>
+        <span>3 licencias disponibles</span>
       </div>
 
       <div class="item-leyenda">
         <div class="color amarillo"></div>
-        <span>Disponibilidad limitada</span>
+        <span>1 o 2 licencias disponibles</span>
       </div>
 
       <div class="item-leyenda">
         <div class="color rojo"></div>
-        <span>Sin disponibilidad</span>
+        <span>0 licencias disponibles</span>
       </div>
 
       <div class="item-leyenda">
@@ -180,14 +180,27 @@
 
       fetch("/api/reservas?anio=" + anioActual + "&mes=" + mesApi)
         .then(function(respuesta) {
+          if (!respuesta.ok) {
+            throw new Error("No se pudo conectar con la API.");
+          }
+
           return respuesta.json();
         })
         .then(function(datos) {
-          reservas = datos;
+          if (Array.isArray(datos)) {
+            reservas = datos;
+          } else {
+            reservas = [];
+          }
+
           generarCalendario();
         })
         .catch(function(error) {
-          console.log(error);
+          console.log("Error al cargar reservas:", error);
+
+          reservas = [];
+
+          generarCalendario();
         });
     }
 

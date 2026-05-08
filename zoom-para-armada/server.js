@@ -3,12 +3,14 @@ const sqlite3 = require("sqlite3").verbose();
 const path = require("path");
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
 
-const db = new sqlite3.Database("./agenda_zoom.db", function(error) {
+const dbPath = process.env.VERCEL ? "/tmp/agenda_zoom.db" : "./agenda_zoom.db";
+
+const db = new sqlite3.Database(dbPath, function(error) {
   if (error) {
     console.error("Error al conectar con la base de datos:", error.message);
   } else {
@@ -16,20 +18,22 @@ const db = new sqlite3.Database("./agenda_zoom.db", function(error) {
   }
 });
 
-db.run(`
-  CREATE TABLE IF NOT EXISTS reservas_solicitudes (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    fecha TEXT NOT NULL,
-    hora_inicio TEXT NOT NULL,
-    hora_fin TEXT NOT NULL,
-    horario TEXT NOT NULL,
-    motivo TEXT NOT NULL,
-    responsable TEXT NOT NULL,
-    unidad TEXT NOT NULL,
-    gran_mando TEXT NOT NULL,
-    observaciones TEXT
-  )
-`);
+db.serialize(function() {
+  db.run(`
+    CREATE TABLE IF NOT EXISTS reservas_solicitudes (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      fecha TEXT NOT NULL,
+      hora_inicio TEXT NOT NULL,
+      hora_fin TEXT NOT NULL,
+      horario TEXT NOT NULL,
+      motivo TEXT NOT NULL,
+      responsable TEXT NOT NULL,
+      unidad TEXT NOT NULL,
+      gran_mando TEXT NOT NULL,
+      observaciones TEXT
+    )
+  `);
+});
 
 app.get("/api/reservas", function(req, res) {
   const anio = req.query.anio;
@@ -109,7 +113,7 @@ app.post("/api/reservas", function(req, res) {
       for (let i = 0; i < reservasDelDia.length; i++) {
         const reserva = reservasDelDia[i];
 
-        if (id !== null && parseInt(reserva.id) === parseInt(id)) {
+        if (id !== null && id !== "" && parseInt(reserva.id) === parseInt(id)) {
           continue;
         }
 
@@ -190,6 +194,10 @@ function convertirHoraAMinutos(hora) {
   return horas * 60 + minutos;
 }
 
-app.listen(PORT, function() {
-  console.log("Servidor iniciado en http://localhost:" + PORT);
-});
+if (require.main === module) {
+  app.listen(PORT, function() {
+    console.log("Servidor iniciado en http://localhost:" + PORT);
+  });
+}
+
+module.exports = app;

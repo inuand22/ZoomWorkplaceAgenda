@@ -336,14 +336,27 @@
 
       fetch("/api/reservas?anio=" + anioActual + "&mes=" + mesApi)
         .then(function(respuesta) {
+          if (!respuesta.ok) {
+            throw new Error("No se pudo conectar con la API.");
+          }
+
           return respuesta.json();
         })
         .then(function(datos) {
-          reservas = datos;
+          if (Array.isArray(datos)) {
+            reservas = datos;
+          } else {
+            reservas = [];
+          }
+
           generarCalendario();
         })
         .catch(function(error) {
-          console.log(error);
+          console.log("Error al cargar reservas:", error);
+
+          reservas = [];
+
+          generarCalendario();
         });
     }
 

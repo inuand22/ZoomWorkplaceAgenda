@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Agenda de Licencias Zoom</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #222;
+    }
+
+    .contenedor {
+      max-width: 1200px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.15);
+    }
+
+    .controles {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    button {
+      padding: 10px 15px;
+      border: none;
+      background: #333;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #555;
+    }
+
+    #mesAnio {
+      font-size: 22px;
+      font-weight: bold;
+    }
+
+    .calendario {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 8px;
+    }
+
+    .dia-semana {
+      text-align: center;
+      font-weight: bold;
+      padding: 10px;
+      background: #222;
+      color: white;
+      border-radius: 5px;
+    }
+
+    .dia {
+      min-height: 170px;
+      padding: 8px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      cursor: pointer;
+      background: #f9f9f9;
+    }
+
+    .dia:hover {
+      outline: 2px solid #333;
+    }
+
+    .numero {
+      font-weight: bold;
+      font-size: 18px;
+      margin-bottom: 8px;
+    }
+
+    .vacio {
+      background: transparent;
+      border: none;
+      cursor: default;
+    }
+
+    .bloqueado {
+      background: #ddd;
+      color: #777;
+      cursor: not-allowed;
+    }
+
+    .bloqueado:hover {
+      outline: none;
+    }
+
+    .texto-bloqueado {
+      font-size: 13px;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+
+    .horario {
+      padding: 5px;
+      margin-top: 5px;
+      border-radius: 5px;
+      font-size: 12px;
+      border: 1px solid rgba(0,0,0,0.15);
+    }
+
+    .verde {
+      background: #b9f6b9;
+    }
+
+    .amarillo {
+      background: #fff3a3;
+    }
+
+    .rojo {
+      background: #ff9f9f;
+    }
+
+    .leyenda {
+      margin-top: 20px;
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .item-leyenda {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .color {
+      width: 20px;
+      height: 20px;
+      border-radius: 4px;
+      border: 1px solid #aaa;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 10;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+    }
+
+    .modal-contenido {
+      background: white;
+      width: 90%;
+      max-width: 520px;
+      margin: 30px auto;
+      padding: 20px;
+      border-radius: 10px;
+    }
+
+    label {
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      box-sizing: border-box;
+    }
+
+    textarea {
+      height: 70px;
+    }
+
+    .fila-horarios {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .acciones-modal {
+      margin-top: 20px;
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .btn-rojo {
+      background: #8b0000;
+    }
+
+    .btn-verde {
+      background: #006400;
+    }
+
+    .nota {
+      font-size: 13px;
+      background: #eef3ff;
+      padding: 8px;
+      border-radius: 5px;
+      margin-top: 10px;
+    }
+
+    .mensaje-error {
+      display: none;
+      margin-top: 12px;
+      padding: 10px;
+      border-radius: 5px;
+      background: #ffd6d6;
+      color: #8b0000;
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    .campo-error {
+      border: 2px solid #b00000;
+      background: #fff5f5;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="contenedor">
+    <h1>Agenda de Licencias Zoom Workplace Commercial</h1>
+
+    <div class="controles">
+      <button onclick="mesAnterior()">Anterior</button>
+      <div id="mesAnio"></div>
+      <button onclick="mesSiguiente()">Siguiente</button>
+    </div>
+
+    <div class="calendario" id="calendario"></div>
+
+    <div class="leyenda">
+      <div class="item-leyenda">
+        <div class="color verde"></div>
+        <span>0 o 1 licencia solicitada - Disponible</span>
+      </div>
+
+      <div class="item-leyenda">
+        <div class="color amarillo"></div>
+        <span>2 licencias solicitadas - Disponibilidad limitada</span>
+      </div>
+
+      <div class="item-leyenda">
+        <div class="color rojo"></div>
+        <span>3 licencias solicitadas - Sin disponibilidad</span>
+      </div>
+
+      <div class="item-leyenda">
+        <div class="color" style="background:#ddd;"></div>
+        <span>Sábado/Domingo - No habilitado</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="modal">
+    <div class="modal-contenido">
+      <h2 id="tituloModal">Editar reunión</h2>
+
+      <input type="hidden" id="fechaSeleccionada">
+      <input type="hidden" id="reservaId">
+
+      <div class="nota">
+        Cada solicitud utiliza <strong>1 licencia</strong>.  
+        El horario permitido es desde las <strong>08:00</strong> hasta las <strong>14:00</strong>.
+      </div>
+
+      <div id="mensajeError" class="mensaje-error"></div>
+
+      <div class="fila-horarios">
+        <div>
+          <label>Hora de inicio</label>
+          <input type="time" id="horaInicio" min="08:00" max="13:59">
+        </div>
+
+        <div>
+          <label>Hora de fin</label>
+          <input type="time" id="horaFin" min="08:01" max="14:00">
+        </div>
+      </div>
+
+      <label>Motivo de uso</label>
+      <input type="text" id="motivo">
+
+      <label>Responsable</label>
+      <input type="text" id="responsable">
+
+      <label>Unidad</label>
+      <input type="text" id="unidad">
+
+      <label>Gran Mando</label>
+      <input type="text" id="granMando">
+
+      <label>Observaciones</label>
+      <textarea id="observaciones"></textarea>
+
+      <div class="acciones-modal">
+        <button class="btn-verde" onclick="guardarReserva()">Guardar</button>
+        <button class="btn-rojo" onclick="eliminarReserva()">Eliminar</button>
+        <button onclick="cerrarModal()">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    var fechaActual = new Date();
+    var mesActual = fechaActual.getMonth();
+    var anioActual = fechaActual.getFullYear();
+    var reservas = [];
+
+    var meses = [
+      "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+      "Julio", "Agosto", "Setiembre", "Octubre", "Noviembre", "Diciembre"
+    ];
+
+    var diasSemana = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
+
+    function cargarReservas() {
+      var mesApi = mesActual + 1;
+
+      fetch("/api/reservas?anio=" + anioActual + "&mes=" + mesApi)
+        .then(function(respuesta) {
+          return respuesta.json();
+        })
+        .then(function(datos) {
+          reservas = datos;
+          generarCalendario();
+        })
+        .catch(function(error) {
+          console.log(error);
+        });
+    }
+
+    function generarCalendario() {
+      var calendario = document.getElementById("calendario");
+      var mesAnio = document.getElementById("mesAnio");
+
+      calendario.innerHTML = "";
+      mesAnio.innerHTML = meses[mesActual] + " " + anioActual;
+
+      for (var i = 0; i < diasSemana.length; i++) {
+        var diaSemana = document.createElement("div");
+        diaSemana.className = "dia-semana";
+        diaSemana.innerHTML = diasSemana[i];
+        calendario.appendChild(diaSemana);
+      }
+
+      var primerDia = new Date(anioActual, mesActual, 1).getDay();
+      var diasDelMes = new Date(anioActual, mesActual + 1, 0).getDate();
+
+      for (var j = 0; j < primerDia; j++) {
+        var vacio = document.createElement("div");
+        vacio.className = "dia vacio";
+        calendario.appendChild(vacio);
+      }
+
+      for (var dia = 1; dia <= diasDelMes; dia++) {
+        crearDia(dia);
+      }
+    }
+
+    function crearDia(dia) {
+      var calendario = document.getElementById("calendario");
+      var fecha = obtenerFechaTexto(dia);
+      var fechaObjeto = new Date(anioActual, mesActual, dia);
+      var numeroDiaSemana = fechaObjeto.getDay();
+
+      var divDia = document.createElement("div");
+
+      if (numeroDiaSemana === 0 || numeroDiaSemana === 6) {
+        divDia.className = "dia bloqueado";
+        divDia.innerHTML =
+          "<div class='numero'>" + dia + "</div>" +
+          "<div class='texto-bloqueado'>No habilitado</div>";
+        calendario.appendChild(divDia);
+        return;
+      }
+
+      divDia.className = "dia";
+      divDia.onclick = function() {
+        abrirModalNuevo(dia);
+      };
+
+      var contenido = "<div class='numero'>" + dia + "</div>";
+      var reservasDelDia = obtenerReservasDelDia(fecha);
+
+      if (reservasDelDia.length === 0) {
+        contenido += "<div class='horario verde'>Sin reuniones cargadas</div>";
+      } else {
+        for (var i = 0; i < reservasDelDia.length; i++) {
+          var reserva = reservasDelDia[i];
+          var ocupacion = calcularOcupacion(reserva);
+
+          contenido +=
+            "<div class='horario " + obtenerClaseColor(ocupacion) + "' onclick='abrirModalExistente(event, " + reserva.id + ")'>" +
+            "<strong>" + reserva.horario + "</strong><br>" +
+            "Ocupación: " + ocupacion + "/3";
+
+          if (reserva.unidad) {
+            contenido += "<br>" + reserva.unidad;
+          }
+
+          if (reserva.responsable) {
+            contenido += "<br>" + reserva.responsable;
+          }
+
+          contenido += "</div>";
+        }
+      }
+
+      divDia.innerHTML = contenido;
+      calendario.appendChild(divDia);
+    }
+
+    function abrirModalNuevo(dia) {
+      var fecha = obtenerFechaTexto(dia);
+
+      limpiarErrores();
+
+      document.getElementById("fechaSeleccionada").value = fecha;
+      document.getElementById("reservaId").value = "";
+      document.getElementById("tituloModal").innerHTML = "Nueva solicitud - " + fecha;
+
+      document.getElementById("horaInicio").value = "08:00";
+      document.getElementById("horaFin").value = "10:00";
+      document.getElementById("motivo").value = "";
+      document.getElementById("responsable").value = "";
+      document.getElementById("unidad").value = "";
+      document.getElementById("granMando").value = "";
+      document.getElementById("observaciones").value = "";
+
+      document.getElementById("modal").style.display = "block";
+    }
+
+    function abrirModalExistente(evento, id) {
+      evento.stopPropagation();
+
+      limpiarErrores();
+
+      var reserva = buscarReservaPorId(id);
+
+      if (reserva === null) {
+        return;
+      }
+
+      document.getElementById("fechaSeleccionada").value = reserva.fecha;
+      document.getElementById("reservaId").value = reserva.id;
+      document.getElementById("tituloModal").innerHTML = "Editar solicitud - " + reserva.fecha;
+
+      document.getElementById("horaInicio").value = reserva.hora_inicio;
+      document.getElementById("horaFin").value = reserva.hora_fin;
+      document.getElementById("motivo").value = reserva.motivo || "";
+      document.getElementById("responsable").value = reserva.responsable || "";
+      document.getElementById("unidad").value = reserva.unidad || "";
+      document.getElementById("granMando").value = reserva.gran_mando || "";
+      document.getElementById("observaciones").value = reserva.observaciones || "";
+
+      document.getElementById("modal").style.display = "block";
+    }
+
+    function cerrarModal() {
+      document.getElementById("modal").style.display = "none";
+      limpiarErrores();
+    }
+
+    function guardarReserva() {
+      limpiarErrores();
+
+      var id = document.getElementById("reservaId").value;
+      var fecha = document.getElementById("fechaSeleccionada").value;
+      var horaInicio = document.getElementById("horaInicio").value;
+      var horaFin = document.getElementById("horaFin").value;
+      var motivo = document.getElementById("motivo").value.trim();
+      var responsable = document.getElementById("responsable").value.trim();
+      var unidad = document.getElementById("unidad").value.trim();
+      var granMando = document.getElementById("granMando").value.trim();
+      var observaciones = document.getElementById("observaciones").value.trim();
+
+      if (!validarCampos(horaInicio, horaFin, motivo, responsable, unidad, granMando)) {
+        return;
+      }
+
+      var datos = {
+        id: id,
+        fecha: fecha,
+        hora_inicio: horaInicio,
+        hora_fin: horaFin,
+        motivo: motivo,
+        responsable: responsable,
+        unidad: unidad,
+        gran_mando: granMando,
+        observaciones: observaciones
+      };
+
+      fetch("/api/reservas", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(datos)
+      })
+      .then(function(respuesta) {
+        return respuesta.json().then(function(data) {
+          return {
+            ok: respuesta.ok,
+            data: data
+          };
+        });
+      })
+      .then(function(resultado) {
+        if (!resultado.ok) {
+          mostrarError(resultado.data.error || "No se pudo guardar la solicitud.");
+          return;
+        }
+
+        cerrarModal();
+        cargarReservas();
+      })
+      .catch(function(error) {
+        console.log(error);
+        mostrarError("Error al guardar la solicitud.");
+      });
+    }
+
+    function eliminarReserva() {
+      limpiarErrores();
+
+      var id = document.getElementById("reservaId").value;
+
+      if (id === "") {
+        mostrarError("Esta solicitud todavía no fue guardada.");
+        return;
+      }
+
+      var confirmar = confirm("¿Seguro que desea eliminar esta solicitud?");
+
+      if (!confirmar) {
+        return;
+      }
+
+      fetch("/api/reservas/" + id, {
+        method: "DELETE"
+      })
+      .then(function(respuesta) {
+        return respuesta.json();
+      })
+      .then(function() {
+        cerrarModal();
+        cargarReservas();
+      })
+      .catch(function(error) {
+        console.log(error);
+        mostrarError("Error al eliminar la solicitud.");
+      });
+    }
+
+    function validarCampos(horaInicio, horaFin, motivo, responsable, unidad, granMando) {
+      if (horaInicio === "") {
+        marcarCampoError("horaInicio");
+        mostrarError("Debe ingresar la hora de inicio.");
+        return false;
+      }
+
+      if (horaFin === "") {
+        marcarCampoError("horaFin");
+        mostrarError("Debe ingresar la hora de fin.");
+        return false;
+      }
+
+      var inicio = convertirHoraAMinutos(horaInicio);
+      var fin = convertirHoraAMinutos(horaFin);
+      var minimo = convertirHoraAMinutos("08:00");
+      var maximo = convertirHoraAMinutos("14:00");
+
+      if (inicio < minimo) {
+        marcarCampoError("horaInicio");
+        mostrarError("La hora de inicio no puede ser menor a 08:00.");
+        return false;
+      }
+
+      if (fin > maximo) {
+        marcarCampoError("horaFin");
+        mostrarError("La hora de fin no puede superar las 14:00.");
+        return false;
+      }
+
+      if (fin <= inicio) {
+        marcarCampoError("horaFin");
+        mostrarError("La hora de fin debe ser mayor a la hora de inicio.");
+        return false;
+      }
+
+      if (motivo === "") {
+        marcarCampoError("motivo");
+        mostrarError("Debe ingresar el motivo de uso.");
+        return false;
+      }
+
+      if (responsable === "") {
+        marcarCampoError("responsable");
+        mostrarError("Debe ingresar el responsable.");
+        return false;
+      }
+
+      if (unidad === "") {
+        marcarCampoError("unidad");
+        mostrarError("Debe ingresar la unidad.");
+        return false;
+      }
+
+      if (granMando === "") {
+        marcarCampoError("granMando");
+        mostrarError("Debe ingresar el Gran Mando.");
+        return false;
+      }
+
+      return true;
+    }
+
+    function mostrarError(mensaje) {
+      var mensajeError = document.getElementById("mensajeError");
+      mensajeError.innerHTML = mensaje;
+      mensajeError.style.display = "block";
+    }
+
+    function limpiarErrores() {
+      var mensajeError = document.getElementById("mensajeError");
+      mensajeError.innerHTML = "";
+      mensajeError.style.display = "none";
+
+      document.getElementById("horaInicio").classList.remove("campo-error");
+      document.getElementById("horaFin").classList.remove("campo-error");
+      document.getElementById("motivo").classList.remove("campo-error");
+      document.getElementById("responsable").classList.remove("campo-error");
+      document.getElementById("unidad").classList.remove("campo-error");
+      document.getElementById("granMando").classList.remove("campo-error");
+    }
+
+    function marcarCampoError(idCampo) {
+      document.getElementById(idCampo).classList.add("campo-error");
+    }
+
+    function obtenerReservasDelDia(fecha) {
+      var resultado = [];
+
+      for (var i = 0; i < reservas.length; i++) {
+        if (reservas[i].fecha === fecha) {
+          resultado.push(reservas[i]);
+        }
+      }
+
+      resultado.sort(function(a, b) {
+        return a.hora_inicio.localeCompare(b.hora_inicio);
+      });
+
+      return resultado;
+    }
+
+    function calcularOcupacion(reservaBase) {
+      var cantidad = 0;
+
+      var baseInicio = convertirHoraAMinutos(reservaBase.hora_inicio);
+      var baseFin = convertirHoraAMinutos(reservaBase.hora_fin);
+
+      for (var i = 0; i < reservas.length; i++) {
+        var reserva = reservas[i];
+
+        if (reserva.fecha !== reservaBase.fecha) {
+          continue;
+        }
+
+        var inicio = convertirHoraAMinutos(reserva.hora_inicio);
+        var fin = convertirHoraAMinutos(reserva.hora_fin);
+
+        var seSuperpone = baseInicio < fin && baseFin > inicio;
+
+        if (seSuperpone) {
+          cantidad++;
+        }
+      }
+
+      return cantidad;
+    }
+
+    function buscarReservaPorId(id) {
+      for (var i = 0; i < reservas.length; i++) {
+        if (parseInt(reservas[i].id) === parseInt(id)) {
+          return reservas[i];
+        }
+      }
+
+      return null;
+    }
+
+    function obtenerClaseColor(cantidad) {
+      if (cantidad >= 3) {
+        return "rojo";
+      }
+
+      if (cantidad === 2) {
+        return "amarillo";
+      }
+
+      return "verde";
+    }
+
+    function convertirHoraAMinutos(hora) {
+      var partes = hora.split(":");
+      var horas = parseInt(partes[0]);
+      var minutos = parseInt(partes[1]);
+
+      return horas * 60 + minutos;
+    }
+
+    function obtenerFechaTexto(dia) {
+      var mes = mesActual + 1;
+
+      var mesTexto = mes.toString().padStart(2, "0");
+      var diaTexto = dia.toString().padStart(2, "0");
+
+      return anioActual + "-" + mesTexto + "-" + diaTexto;
+    }
+
+    function mesAnterior() {
+      mesActual--;
+
+      if (mesActual < 0) {
+        mesActual = 11;
+        anioActual--;
+      }
+
+      cargarReservas();
+    }
+
+    function mesSiguiente() {
+      mesActual++;
+
+      if (mesActual > 11) {
+        mesActual = 0;
+        anioActual++;
+      }
+
+      cargarReservas();
+    }
+
+    cargarReservas();
+  </script>
+
+</body>
+</html>

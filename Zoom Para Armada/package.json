@@ -1,0 +1,13 @@
+{
+  "name": "agenda-zoom",
+  "version": "1.0.0",
+  "description": "Agenda para licencias Zoom Workplace Commercial",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "sqlite3": "^5.1.7"
+  }
+}

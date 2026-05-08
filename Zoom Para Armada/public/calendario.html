@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Calendario de Disponibilidad Zoom</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #222;
+    }
+
+    .contenedor {
+      max-width: 1100px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.15);
+    }
+
+    .controles {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    button {
+      padding: 10px 15px;
+      border: none;
+      background: #333;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #555;
+    }
+
+    #mesAnio {
+      font-size: 22px;
+      font-weight: bold;
+    }
+
+    .calendario {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 8px;
+    }
+
+    .dia-semana {
+      text-align: center;
+      font-weight: bold;
+      padding: 10px;
+      background: #222;
+      color: white;
+      border-radius: 5px;
+    }
+
+    .dia {
+      min-height: 90px;
+      padding: 8px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      display: flex;
+      align-items: flex-start;
+      justify-content: flex-start;
+    }
+
+    .numero {
+      font-weight: bold;
+      font-size: 18px;
+    }
+
+    .vacio {
+      background: transparent;
+      border: none;
+    }
+
+    .bloqueado {
+      background: #ddd;
+      color: #777;
+    }
+
+    .verde {
+      background: #b9f6b9;
+    }
+
+    .amarillo {
+      background: #fff3a3;
+    }
+
+    .rojo {
+      background: #ff9f9f;
+    }
+
+    .leyenda {
+      margin-top: 20px;
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .item-leyenda {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .color {
+      width: 20px;
+      height: 20px;
+      border-radius: 4px;
+      border: 1px solid #aaa;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="contenedor">
+    <h1>Calendario de Disponibilidad</h1>
+
+    <div class="controles">
+      <button onclick="mesAnterior()">Anterior</button>
+      <div id="mesAnio"></div>
+      <button onclick="mesSiguiente()">Siguiente</button>
+    </div>
+
+    <div class="calendario" id="calendario"></div>
+
+    <div class="leyenda">
+      <div class="item-leyenda">
+        <div class="color verde"></div>
+        <span>Disponible</span>
+      </div>
+
+      <div class="item-leyenda">
+        <div class="color amarillo"></div>
+        <span>Disponibilidad limitada</span>
+      </div>
+
+      <div class="item-leyenda">
+        <div class="color rojo"></div>
+        <span>Sin disponibilidad</span>
+      </div>
+
+      <div class="item-leyenda">
+        <div class="color" style="background:#ddd;"></div>
+        <span>No habilitado</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    var fechaActual = new Date();
+    var mesActual = fechaActual.getMonth();
+    var anioActual = fechaActual.getFullYear();
+    var reservas = [];
+
+    var meses = [
+      "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+      "Julio", "Agosto", "Setiembre", "Octubre", "Noviembre", "Diciembre"
+    ];
+
+    var diasSemana = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
+
+    function cargarReservas() {
+      var mesApi = mesActual + 1;
+
+      fetch("/api/reservas?anio=" + anioActual + "&mes=" + mesApi)
+        .then(function(respuesta) {
+          return respuesta.json();
+        })
+        .then(function(datos) {
+          reservas = datos;
+          generarCalendario();
+        })
+        .catch(function(error) {
+          console.log(error);
+        });
+    }
+
+    function generarCalendario() {
+      var calendario = document.getElementById("calendario");
+      var mesAnio = document.getElementById("mesAnio");
+
+      calendario.innerHTML = "";
+      mesAnio.innerHTML = meses[mesActual] + " " + anioActual;
+
+      for (var i = 0; i < diasSemana.length; i++) {
+        var diaSemana = document.createElement("div");
+        diaSemana.className = "dia-semana";
+        diaSemana.innerHTML = diasSemana[i];
+        calendario.appendChild(diaSemana);
+      }
+
+      var primerDia = new Date(anioActual, mesActual, 1).getDay();
+      var diasDelMes = new Date(anioActual, mesActual + 1, 0).getDate();
+
+      for (var j = 0; j < primerDia; j++) {
+        var vacio = document.createElement("div");
+        vacio.className = "dia vacio";
+        calendario.appendChild(vacio);
+      }
+
+      for (var dia = 1; dia <= diasDelMes; dia++) {
+        crearDia(dia);
+      }
+    }
+
+    function crearDia(dia) {
+      var calendario = document.getElementById("calendario");
+      var fecha = obtenerFechaTexto(dia);
+      var fechaObjeto = new Date(anioActual, mesActual, dia);
+      var numeroDiaSemana = fechaObjeto.getDay();
+
+      var divDia = document.createElement("div");
+
+      if (numeroDiaSemana === 0 || numeroDiaSemana === 6) {
+        divDia.className = "dia bloqueado";
+        divDia.innerHTML = "<div class='numero'>" + dia + "</div>";
+        calendario.appendChild(divDia);
+        return;
+      }
+
+      var ocupacionMaxima = obtenerOcupacionMaximaDelDia(fecha);
+      var disponibles = 3 - ocupacionMaxima;
+
+      divDia.className = "dia " + obtenerClaseColorPorDisponibilidad(disponibles);
+      divDia.innerHTML = "<div class='numero'>" + dia + "</div>";
+
+      calendario.appendChild(divDia);
+    }
+
+    function obtenerOcupacionMaximaDelDia(fecha) {
+      var reservasDelDia = [];
+
+      for (var i = 0; i < reservas.length; i++) {
+        if (reservas[i].fecha === fecha) {
+          reservasDelDia.push(reservas[i]);
+        }
+      }
+
+      if (reservasDelDia.length === 0) {
+        return 0;
+      }
+
+      var ocupacionMaxima = 0;
+
+      for (var j = 0; j < reservasDelDia.length; j++) {
+        var reservaBase = reservasDelDia[j];
+        var inicioBase = convertirHoraAMinutos(reservaBase.hora_inicio);
+        var finBase = convertirHoraAMinutos(reservaBase.hora_fin);
+
+        var ocupacion = 0;
+
+        for (var k = 0; k < reservasDelDia.length; k++) {
+          var otraReserva = reservasDelDia[k];
+          var inicioOtra = convertirHoraAMinutos(otraReserva.hora_inicio);
+          var finOtra = convertirHoraAMinutos(otraReserva.hora_fin);
+
+          var seSuperpone = inicioBase < finOtra && finBase > inicioOtra;
+
+          if (seSuperpone) {
+            ocupacion++;
+          }
+        }
+
+        if (ocupacion > ocupacionMaxima) {
+          ocupacionMaxima = ocupacion;
+        }
+      }
+
+      return ocupacionMaxima;
+    }
+
+    function obtenerClaseColorPorDisponibilidad(disponibles) {
+      if (disponibles === 3) {
+        return "verde";
+      }
+
+      if (disponibles === 1 || disponibles === 2) {
+        return "amarillo";
+      }
+
+      return "rojo";
+    }
+
+    function convertirHoraAMinutos(hora) {
+      var partes = hora.split(":");
+      var horas = parseInt(partes[0]);
+      var minutos = parseInt(partes[1]);
+
+      return horas * 60 + minutos;
+    }
+
+    function obtenerFechaTexto(dia) {
+      var mes = mesActual + 1;
+
+      var mesTexto = mes.toString().padStart(2, "0");
+      var diaTexto = dia.toString().padStart(2, "0");
+
+      return anioActual + "-" + mesTexto + "-" + diaTexto;
+    }
+
+    function mesAnterior() {
+      mesActual--;
+
+      if (mesActual < 0) {
+        mesActual = 11;
+        anioActual--;
+      }
+
+      cargarReservas();
+    }
+
+    function mesSiguiente() {
+      mesActual++;
+
+      if (mesActual > 11) {
+        mesActual = 0;
+        anioActual++;
+      }
+
+      cargarReservas();
+    }
+
+    cargarReservas();
+  </script>
+
+</body>
+</html>
